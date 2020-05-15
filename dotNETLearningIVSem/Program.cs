@@ -16,7 +16,7 @@ namespace dotNETLearningIVSem
         {
             int x_zeros_count = 0;
             int y_zeros_count = 0;
-            
+
             for (var i = 0; i < x.Length; i++)
             {
                 if (x[i] == '0')
@@ -24,7 +24,7 @@ namespace dotNETLearningIVSem
                     x_zeros_count++;
                 }
             }
-            
+
             foreach (var character in y)
             {
                 if (character == '0')
@@ -94,7 +94,7 @@ namespace dotNETLearningIVSem
         // nie da się stworzyć property, które ma obie metody private - w takiej sytuacji wystarczy stworzyć prywatne pole
         // public int AllPrivateNumber { private set; private get; }
         private int _allPrivateNumber;
-        
+
         // nie da się stworzyć property, które ma tylko set
         // public int OnlySetNumber { set; }
 
@@ -122,8 +122,19 @@ namespace dotNETLearningIVSem
         }
     }
 
+
     class Program
     {
+        public static void valTest(int test)
+        {
+            test += 6;
+        }
+
+        public static void refTest(ref int test)
+        {
+            test += 5;
+        }
+
         static void Main(string[] args)
         {
 
@@ -136,8 +147,19 @@ namespace dotNETLearningIVSem
             // kompilator w trakcie kompilacji zamienia var na typ, który "ukrywa się" pod magicznym keywordem
             // Dlatego, mimo używania "var", musimy dbać o zgodność 
             var test = 12; // test jest zmienną typu int
+            // byte
+
             // Przypisanie stringa do test nie zadziała, ponieważ test jest typu int
             // test = "Abc";
+
+            // ref - & z C/C++, wysyłamy referencje(adres) zmiennej, a nie tylko jej wartość
+            // obiekty ZAWSZE są wysyłane przez referencje, natomiast typy proste standardowo są wysyłane przez wartość
+            Console.WriteLine($"Zmienna przed edycja: {test}");
+            valTest(test);
+            Console.WriteLine($"Zmienna po valTest: {test}");
+            // jeżeli typ prosty wysyłamy przez referencje, podczas podawania parametru również musimy użyć keyword ref
+            refTest(ref test);
+            Console.WriteLine($"Zmienna po refTest: {test}");
 
             // ----------------------------------------------------------------------------------------------
             // Klasy i obiekty
@@ -173,26 +195,28 @@ namespace dotNETLearningIVSem
             Console.WriteLine(obj); // implicit casting obj -> string
             obj = stringTest;
 
-            // nie działa implicit casting
+            // nie działa implicit casting typu object do typów prostych
             // intTest = obj;
+            // doubleTest = obj;
 
             // to już działa, ale jest niebezpiecznie (kompilator pozwoli, ale może
             // być runtime error, jeżeli będziemy próbowali castować coś co nie może się udać)
-            //intTest = (int) obj;
+            // poniższe spowoduje wyrzucenie exceptiona
+            // intTest = (int)obj;
 
             // test castowania, w ten sposób możemy sprawdzić, czy jest możliwa konwersja zmiennej na dany typ
             bool castTest = obj is int;
 
             // próba castowania 
-            // nie uda się, ponieważ castowanie "as x" wymaga, żeby typ x mógł być nullem(ten warunek spełnia właśnie string)
-            // intTest = obj as int; 
+            // poniższe nie uda się, ponieważ castowanie "as x" wymaga, żeby typ x mógł być nullem(ten warunek spełnia właśnie string)
+            //intTest = obj as int;
 
             // tutaj się uda, ponieważ string może być nullem, więc gdy castowanie się nie powiedzie, to do stringTest będzie przypisana wartość null
             obj = intTest;
             stringTest = obj as string;
             Console.WriteLine(stringTest);
 
-            // ----------------------------------------------------------------------------------------------
+            //// ----------------------------------------------------------------------------------------------
             // Tablice
 
             // Muszą mieć predefiniowany rozmiar
@@ -218,7 +242,8 @@ namespace dotNETLearningIVSem
 
             string testingString = "abcdefgh";
             Console.WriteLine(testingString);
-            // string jest immutable, więc to nie zadziała
+
+            // string jest immutable, poniższe nie zadziała
             // testingString[0] = "b";
 
             // Musimy stworzyć nowego stringa, w którym zajdzie ta zmiana
@@ -235,10 +260,10 @@ namespace dotNETLearningIVSem
             // Możemy też w ten sposób zamienić dłuższy fragment na krótszy
             newString = testingString.Remove(0, 3).Insert(0, "11");
             Console.WriteLine(newString);
-            
+
             // Stworzenie stringa z tablicy stringów
-            string[] stringArr = {"a", "1", "b", "2", "c"};
-            newString = String.Concat(stringArr);
+            string[] stringArr = { "a", "1", "b", "2", "c" };
+            newString = string.Concat(stringArr);
             Console.WriteLine(newString);
             // po stringu możemy iterować jak po tablicy
             for (var i = 0; i < newString.Length; i++)
@@ -277,7 +302,14 @@ namespace dotNETLearningIVSem
             stringsList.Remove("abc");
             Console.WriteLine($"Rozmiar listy po usunieciu: {stringsList.Count}");
 
-            // ----------------------------------------------------------------------------------------------
+            // Iterowanie po liście za pomocą iteratora
+            Console.WriteLine("Iteracja za pomoca iteratora");
+            for (var i = stringsList.GetEnumerator(); i.MoveNext();)
+            {
+                Console.WriteLine(i.Current);
+            }
+
+            //// ----------------------------------------------------------------------------------------------
             // DateTime
 
             // Zabawa czasem
@@ -287,15 +319,16 @@ namespace dotNETLearningIVSem
             Console.WriteLine($"Mamy rok: {DateTime.Now.Year}");
             Console.WriteLine($"Dzisiaj jest {DateTime.Now.DayOfYear} dzień roku");
 
-
             // ----------------------------------------------------------------------------------------------
             // Metody rozszerzające
 
+
             newString = "1a2b3c4d";
             Console.WriteLine($"String: {newString}");
+            // Metoda rozszerzająca sprawia, że nie musimy robić StringExtensions.NumbersOnly(newString), ale możemy newString.NumbersOnly()
             Console.WriteLine($"String z samymi cyframi: {newString.NumbersOnly()}");
-
-            // ----------------------------------------------------------------------------------------------
+            
+            //// ----------------------------------------------------------------------------------------------
             // Kolekcja posortowana - przykład
 
             // SortedDictionary to lista elementów KeyValuePair<T, T>
@@ -347,7 +380,7 @@ namespace dotNETLearningIVSem
             }
 
             // ----------------------------------------------------------------------------------------------
-            // Serializacja/Deserializacja
+            // Serializacja / Deserializacja
 
             var textToSerialize = "Test teST 123";
             fileStream = new FileStream("serialized.txt", FileMode.Create);
@@ -368,7 +401,7 @@ namespace dotNETLearningIVSem
             try
             {
                 // BinaryFormatter deserializuje do typu object, więc musimy dokonać konwersji na oczekiwany typ
-                readText = (string) binaryFormatter.Deserialize(fileStream);
+                readText = (string)binaryFormatter.Deserialize(fileStream);
             }
             catch (SerializationException e)
             {
@@ -377,14 +410,16 @@ namespace dotNETLearningIVSem
             fileStream.Close();
             Console.WriteLine($"Deserialized: {readText}");
 
-            // ----------------------------------------------------------------------------------------------
+            //// ----------------------------------------------------------------------------------------------
             // FileSystemInfo/DirectoryInfo/FileInfo
 
             Console.WriteLine();
             var dirInfo = new DirectoryInfo("testdir");
             Console.WriteLine($"Nazwa: {dirInfo.Name}");
             var dirInfoChildrenDirectories = dirInfo.GetDirectories();
-            var dirInfoChildrenFiles= dirInfo.GetFiles();
+            var dirInfoChildrenFiles = dirInfo.GetFiles();
+            // Liczba plików znajdujących się w danym katalogu
+            var numberOfDirInfoChildren = dirInfoChildrenDirectories.Length + dirInfoChildrenFiles.Length;
             Console.WriteLine($"Dzieci:");
             foreach (var dirInfoChildrenDirectory in dirInfoChildrenDirectories)
             {
@@ -392,71 +427,20 @@ namespace dotNETLearningIVSem
             }
             foreach (var dirInfoChildrenFile in dirInfoChildrenFiles)
             {
-                Console.WriteLine($"{dirInfoChildrenFile.Name} - File");
+                Console.WriteLine($"{dirInfoChildrenFile.Name} - File {dirInfoChildrenFile.Length}");
             }
 
             var testFile = new FileInfo("testfile");
-            var fileSystemInfo = (FileSystemInfo) testFile;
+            var fileSystemInfo = (FileSystemInfo)testFile;
             // FileSystemInfo attributes
             Console.WriteLine(fileSystemInfo.Attributes);
             // pokazać jak wygląda wyciąganie jednego z atrybutów RAHS
+            // Wpisanie fileSystemInfo.Attributes.ReadOnly i kliknięcie spacji/tab/enter automatycznie zamieni na poniższy warunek
+            // (nie mam pewności, czy poza Visual Studio też tak działa)
+            // UWAGA, na Linuxie też można odczytywać atrybuty RAHS. Po prostu A i S będą zawsze równe 0, pozostałe 2 mogą być ustawione
             Console.WriteLine((fileSystemInfo.Attributes & FileAttributes.ReadOnly) != 0);
 
-            //int a;
-            //double b;
-            //float c;
-            //decimal d;
-            //char e;
-            //byte f;
-            //// string - immutable type
-            //string abc = "abcd";
-            //// abc[1] = 'a'; error
-            //var replace = abc.Replace('b', 'a');
-            //Console.WriteLine(replace);
-            //replace = abc.Remove(0, 3);
-            //Console.WriteLine(replace);
-            //replace = abc.Remove(0, 3).Insert(0, "aaa");
-            //Console.WriteLine(replace);
-            //// value vs reference type
-            //float test = 0;
-            //AddOneToFloatValueType(test);
-            //Console.WriteLine(test);
-            //AdddOneToFloatReferenceType(ref test);
-            //Console.WriteLine(test);
-
-            //// object type - co to
-
-            //// casting
-            //string stringTest = "test";
-            //int intTest = 15;
-            //double doubleTest = 5.24;
-            //bool boolTest = false;
-            //// automatyczny
-            //object obj = stringTest; // implicit casting string -> obj
-            //Console.WriteLine(obj); // implicit casting obj -> string
-            //obj = intTest; // implicit casting int -> obj
-            //Console.WriteLine(obj); // implicit casting obj -> string
-
-            //// nie działa implicit casting
-            //// intTest = obj; 
-            //obj = stringTest;
-            //// to już działa, ale jest niebezpiecznie (kompilator pozwoli, ale może
-            //// być runtime error, jeżeli będziemy próbowali castować coś co nie może się udać)
-            ////intTest = (int) obj;
-
-            //// test castowania
-            //bool castTest = obj is int;
-
-            //// próba castowania 
-            //// nie uda się, ponieważ castowanie "as x" wymaga, żeby typ x mógł być nullem(ten warunek spełnia właśnie string)
-            //// intTest = obj as int; 
-
-            //// tutaj się uda, ponieważ string może być nullem, więc gdy castowanie się nie powiedzie, to do stringTest będzie przypisana wartość null
-            //obj = intTest;
-            //stringTest = obj as string;
-            //Console.WriteLine(stringTest);
-
-
+            //// ----------------------------------------------------------------------------------------------
         }
     }
 }
